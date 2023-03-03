@@ -81,11 +81,19 @@ namespace Lab2
         public T ExtractMax()
         {
             // linear search
-
+            var max = array[0];
+            foreach (var item in array)
+            {
+                if (item.CompareTo(max) > 0)
+                {
+                    max = item;
+                    break;
+                }
+            }
             // remove max
-
+            Remove(max);
+            return max;
         }
-
         // TODO
         /// <summary>
         /// Removes and returns the min item in the min-heap.
@@ -140,9 +148,30 @@ namespace Lab2
         /// </summary>
         public void Update(T oldValue, T newValue)
         {
+            if (Contains(oldValue))
+            {
+                for (int i = 0; i < Count; i++)
+                {
+                    if (array[i].CompareTo(oldValue) == 0)
+                    {
+                        array[i] = newValue;
 
-
-
+                        if (newValue.CompareTo(oldValue) > 0)
+                        {
+                            TrickleDown(i);
+                        }
+                        if (newValue.CompareTo(oldValue) < 0)
+                        {
+                            TrickleUp(i);
+                        }
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                throw new Exception("Value doesn't exist in array.");
+            }
         }
 
         // TODO
@@ -152,16 +181,40 @@ namespace Lab2
         /// </summary>
         public void Remove(T value)
         {
-
-
-
+            if (Contains(value))
+            {
+                int index = 0;
+                for (int i = 0; i < Count; i++)
+                {
+                    if (array[i].CompareTo(value) == 0)
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+                Swap(index, Count - 1);
+                Count--;
+                TrickleDown(index);
+            }
+            else
+            {
+                throw new Exception("Value doesn't exist in array.");
+            }
         }
 
         // TODO
         // Time Complexity: O( log(n) )
         private void TrickleUp(int index)
         {
-
+            if ( index == 0)
+            {
+                return;
+            }
+            if (array[index].CompareTo(array[Parent(index)]) < 0)
+            {
+                Swap(index, Parent(index));
+                TrickleUp(Parent(index));
+            }
 
         }
 
@@ -169,7 +222,30 @@ namespace Lab2
         // Time Complexity: O( log(n) )
         private void TrickleDown(int index)
         {
-
+            if (LeftChild(index) == Count - 1 && array[index].CompareTo(array[LeftChild(index)]) > 0)
+            {
+                Swap(index, LeftChild(index));
+                return;
+            }
+            if (RightChild(index) == Count - 1 && array[index].CompareTo(array[RightChild(index)]) > 0)
+            {
+                Swap(index, RightChild(index));
+                return;
+            }
+            if (LeftChild(index) > Count || RightChild(index) > Count)
+            {
+                return;
+            }
+            if (array[LeftChild(index)].CompareTo(array[RightChild(index)]) < 0 && array[index].CompareTo(array[LeftChild(index)]) > 0)
+            {
+                Swap(index, LeftChild(index));
+                TrickleDown(LeftChild(index));
+            }
+            if (array[index].CompareTo(array[RightChild(index)]) > 0)
+            {
+                Swap(index, RightChild(index));
+                TrickleDown(RightChild(index));
+            }
         }
 
         // TODO
@@ -178,7 +254,7 @@ namespace Lab2
         /// </summary>
         private static int Parent(int position)
         {
-
+            return (position - 1) / 2;
         }
 
         // TODO
@@ -187,6 +263,7 @@ namespace Lab2
         /// </summary>
         private static int LeftChild(int position)
         {
+            return position * 2 + 1;
         }
 
         // TODO
@@ -195,6 +272,7 @@ namespace Lab2
         /// </summary>
         private static int RightChild(int position)
         {
+            return position * 2 + 2;
         }
 
         private void Swap(int index1, int index2)
